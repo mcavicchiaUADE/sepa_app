@@ -1,5 +1,4 @@
 services:
-  # Web Service - API REST
   - type: web
     name: api-productos-sepa
     env: python
@@ -8,7 +7,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      # Variables de base de datos: automáticas
+      - key: API_KEY
+        sync: false
       - key: DB_HOST
         fromDatabase:
           name: productos-sepa-db
@@ -29,22 +29,7 @@ services:
         fromDatabase:
           name: productos-sepa-db
           property: password
-      # API Key (manual desde dashboard)
-      - key: API_KEY
-        sync: false
-      - key: HOST
-        value: 0.0.0.0
-      - key: FLASK_DEBUG
-        value: "False"
 
-  # Base de datos PostgreSQL
-  - type: postgresql
-    name: productos-sepa-db
-    databaseName: productos_sepa
-    user: productos_sepa_user
-    plan: free
-
-  # Cron Job - Actualización diaria de datos
   - type: cron
     name: actualizar-datos-sepa
     env: python
@@ -75,4 +60,6 @@ services:
           name: productos-sepa-db
           property: password
 
+databases:
+  - name: productos-sepa-db
 
