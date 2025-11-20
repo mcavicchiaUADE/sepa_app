@@ -30,7 +30,7 @@ services:
         value: "False"
 
   # Base de datos PostgreSQL
-  - type: pg
+  - type: postgresql
     name: productos-sepa-db
     databaseName: productos_sepa
     user: productos_sepa_user
