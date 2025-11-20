@@ -1,0 +1,70 @@
+services:
+  # Web Service - API REST
+  - type: web
+    name: api-productos-sepa
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.api:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # Variables de base de datos (se configuran desde el dashboard)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # API Key (configurar desde dashboard)
+      - key: API_KEY
+        sync: false
+      - key: HOST
+        value: 0.0.0.0
+      - key: FLASK_DEBUG
+        value: "False"
+
+  # Base de datos PostgreSQL
+  - type: pg
+    name: productos-sepa-db
+    databaseName: productos_sepa
+    user: productos_sepa_user
+    plan: free
+
+  # Cron Job - Actualización diaria de datos
+  - type: cron
+    name: actualizar-datos-sepa
+    env: python
+    schedule: "10 13 * * *"  # 13:10 UTC = 10:10 Argentina (GMT-3)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/descargar_e_importar.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      # Variables de base de datos (deben coincidir con el servicio pg)
+      - key: DB_HOST
+        fromDatabase:
+          name: productos-sepa-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: productos-sepa-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: productos-sepa-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: productos-sepa-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: productos-sepa-db
+          property: password
+
